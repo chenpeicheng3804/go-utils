@@ -22,6 +22,8 @@ type Service struct {
 	NacosIp            string            `param:"ip"`
 	NacosPath          string            `param:"clusterName"`
 	NacosNamespaceId   string            `param:"NamespaceId"`
+	NacosUsername      string            `param:"Username"`
+	NacosPassword      string            `param:"Password"`
 	ServiceReplicas    string            `param:"Replicas"`
 	Client             naming_client.INamingClient
 }
@@ -52,6 +54,8 @@ func (s *Service) NewCreateNacosClient() {
 
 	//create ClientConfig
 	cc := *constant.NewClientConfig(
+		constant.WithUsername(s.NacosUsername),
+		constant.WithPassword(s.NacosPassword),
 		constant.WithNamespaceId(s.NacosNamespaceId),
 		constant.WithTimeoutMs(5000),
 		constant.WithNotLoadCacheAtStart(true),
