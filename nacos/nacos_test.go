@@ -36,12 +36,7 @@ func TestRegisterServiceInstance(t *testing.T) {
 		//}
 		if len(instances) != 0 {
 			for _, instance := range instances {
-				fmt.Println(instance.Ip)
-				fmt.Println(instance.ServiceName)
-				fmt.Println(instance.ClusterName)
-				fmt.Println(instance.Healthy)
-				fmt.Println(instance.Enable)
-				fmt.Println(instance.Port)
+				fmt.Println(instance)
 			}
 			break
 		}
