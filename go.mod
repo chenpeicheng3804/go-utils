@@ -1,4 +1,4 @@
-module go-utils
+module github.com/chenpeicheng3804/go-utils
 
 go 1.20
 
