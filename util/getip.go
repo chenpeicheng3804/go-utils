@@ -1,11 +1,11 @@
-package net
+package util
 
 import (
 	"fmt"
 	"net"
 )
 
-// getIps
+// GetIps
 // 提取网卡ip
 func GetIps() (ips string) {
 	netInterfaces, err := net.Interfaces()

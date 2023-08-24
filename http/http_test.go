@@ -2,7 +2,7 @@ package http
 
 import (
 	"github.com/chenpeicheng3804/go-utils/nacos"
-	"github.com/chenpeicheng3804/go-utils/net"
+	"github.com/chenpeicheng3804/go-utils/util"
 	"github.com/gin-gonic/gin"
 	"log"
 	"strconv"
@@ -18,7 +18,7 @@ var ServiceConfig = nacos.NewService(nacos.Service{
 	ServiceGroupName:   "group-a",
 	ServicePort:        8080,
 	ServiceName:        "test",
-	ServiceIp:          net.GetIps(),
+	ServiceIp:          util.GetIps(),
 	ServiceMetadata:    map[string]string{"idc": "shanghai"},
 })
 
@@ -36,7 +36,7 @@ func TestElegantOnlineAndOffline(t *testing.T) {
 	{
 		ServerGroup.GET("/", Default)
 	}
-	log.Println("Listen: ", ServiceConfig.ServiceIp+":"+strconv.FormatUint(ServiceConfig.ServicePort, 10))
+	log.Println("Listen: ", "http://"+ServiceConfig.ServiceIp+":"+strconv.FormatUint(ServiceConfig.ServicePort, 10)+"/"+ServiceConfig.ServiceName+"/")
 	//将nacos 注册 注销函数传入
 	InitServer(r, ServiceConfig.ServiceIp+":"+strconv.FormatUint(ServiceConfig.ServicePort, 10), ServiceConfig.RegisterServiceInstance, ServiceConfig.DeRegisterServiceInstance)
 }
