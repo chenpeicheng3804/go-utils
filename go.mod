@@ -3,7 +3,6 @@ module github.com/chenpeicheng3804/go-utils
 go 1.20
 
 require (
-	gitee.com/zhouxiaozhu/go-delayqueue v0.0.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-basic/uuid v1.0.0
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -34,6 +33,8 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/onsi/ginkgo v1.16.5 // indirect
+	github.com/onsi/gomega v1.16.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
