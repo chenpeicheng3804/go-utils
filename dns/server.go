@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -229,6 +230,7 @@ func (s *Server) Handle(ctx context.Context, w MessageWriter, r *Query) {
 		forwarder:     s.Forwarder,
 		query:         r,
 	}
+	fmt.Println(Mux)
 	s.Handler = Mux
 	s.Handler.ServeDNS(ctx, sw, r)
 
