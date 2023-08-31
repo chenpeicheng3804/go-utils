@@ -10,6 +10,12 @@ import (
 	"sync"
 )
 
+var Mux *ResolveMux
+
+func NewMux() (Mux *ResolveMux) {
+	return &ResolveMux{}
+}
+
 // A Server defines parameters for running a DNS server. The zero value for
 // Server is a valid configuration.
 type Server struct {
@@ -223,7 +229,7 @@ func (s *Server) Handle(ctx context.Context, w MessageWriter, r *Query) {
 		forwarder:     s.Forwarder,
 		query:         r,
 	}
-
+	s.Handler = Mux
 	s.Handler.ServeDNS(ctx, sw, r)
 
 	if !sw.replied {
