@@ -30,7 +30,7 @@ func (this *ImportSqlTool) ImportSql() error {
 		return err
 	}
 	db.SingularTable(true)
-	db.LogMode(true)
+	db.LogMode(false)
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
 	db.DB().SetConnMaxLifetime(59 * time.Second)
