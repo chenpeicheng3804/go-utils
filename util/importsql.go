@@ -26,7 +26,7 @@ func (this *ImportSqlTool) ImportSql() error {
 Connect:
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
-		log.Println("数据库连接失败，数据库地址：", this.Server, "数据库名称：", this.Database, err)
+		//log.Println("数据库连接失败，数据库地址：", this.Server, "数据库名称：", this.Database, err)
 		//panic("数据库连接失败!")
 		//return err
 		time.Sleep(time.Second)
