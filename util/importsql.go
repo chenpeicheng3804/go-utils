@@ -19,20 +19,23 @@ type ImportSqlTool struct {
 func (this *ImportSqlTool) ImportSql() error {
 	_, err := os.Stat(this.SqlPath)
 	if os.IsNotExist(err) {
-		log.Println("数据库SQL文件不存在:", err)
+		log.Println(this.SqlPath, "数据库SQL文件不存在:", err)
 		return err
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
+Connect:
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
-		log.Println("数据库连接失败:", err)
+		log.Println("数据库连接失败，数据库地址：", this.Server, "数据库名称：", this.Database, err)
 		//panic("数据库连接失败!")
-		return err
+		//return err
+		time.Sleep(time.Second)
+		goto Connect
 	}
 	db.SingularTable(true)
 	db.LogMode(false)
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(100)
+	db.DB().SetMaxIdleConns(0)
+	db.DB().SetMaxOpenConns(0)
 	db.DB().SetConnMaxLifetime(59 * time.Second)
 
 	sqls, _ := os.ReadFile(this.SqlPath)
