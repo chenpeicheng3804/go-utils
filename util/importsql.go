@@ -44,10 +44,10 @@ func (this *ImportSqlTool) ImportSql() error {
 		}
 		err := db.Exec(sql).Error
 		if err != nil {
-			log.Println(this.Database, sql, "数据库导入失败:"+err.Error())
+			log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "数据库导入失败:"+err.Error())
 
 		} else {
-			log.Println(this.Database, sql, "\t success!")
+			log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "\t success!")
 		}
 	}
 	return nil
