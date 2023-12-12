@@ -2,12 +2,13 @@ package util
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 )
 
 type ImportSqlTool struct {
@@ -43,10 +44,10 @@ func (this *ImportSqlTool) ImportSql() error {
 		}
 		err := db.Exec(sql).Error
 		if err != nil {
-			log.Println("数据库导入失败:" + err.Error())
-			return err
+			log.Println(this.Database, sql, "数据库导入失败:"+err.Error())
+
 		} else {
-			log.Println(sql, "\t success!")
+			log.Println(this.Database, sql, "\t success!")
 		}
 	}
 	return nil
