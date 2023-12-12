@@ -6,13 +6,16 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-basic/uuid v1.0.0
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-sql-driver/mysql v1.7.1
+	github.com/jinzhu/gorm v1.9.16
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.1
 	github.com/sirupsen/logrus v1.8.1
 )
 
+require github.com/jinzhu/inflection v1.0.0 // indirect
+
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
-	github.com/benburkert/dns v0.0.0-20190225204957-d356cf78cdfc
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
@@ -49,7 +52,7 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/net v0.10.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
