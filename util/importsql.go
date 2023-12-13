@@ -41,6 +41,7 @@ Connect:
 
 	sqls, _ := os.ReadFile(this.SqlPath)
 	sqlArr := strings.Split(string(sqls), ";")
+	log.Println("executing", this.SqlPath)
 	for _, sql := range sqlArr {
 		re := regexp.MustCompile(`# .*\n|-- .*\n`)
 		sql = re.ReplaceAllString(sql, "")
