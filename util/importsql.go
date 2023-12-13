@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -40,10 +41,11 @@ Connect:
 	db.DB().SetConnMaxLifetime(59 * time.Second)
 
 	sqls, _ := os.ReadFile(this.SqlPath)
-	sqlArr := strings.Split(string(sqls), ";")
+	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	sqlArr := strings.Split(string(sqls)+"\n", ";")
 	log.Println("executing", this.SqlPath)
 	for _, sql := range sqlArr {
-		re := regexp.MustCompile(`# .*\n|-- .*\n`)
+		re := regexp.MustCompile(`^# .*\n|^-- .*\n`)
 		sql = re.ReplaceAllString(sql, "")
 		sql = strings.TrimSpace(sql)
 		if sql == "" {
