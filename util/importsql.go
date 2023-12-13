@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -41,11 +42,13 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 	sqlArr := strings.Split(string(sqls), ";")
 	for _, sql := range sqlArr {
+		re := regexp.MustCompile(`# .*\n|-- .*\n`)
+		sql = re.ReplaceAllString(sql, "")
 		sql = strings.TrimSpace(sql)
 		if sql == "" {
 			continue
 		}
-		err := db.Exec(sql).Error
+		err = db.Exec(sql).Error
 		if err != nil {
 			log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "数据库导入失败:"+err.Error())
 
