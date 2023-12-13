@@ -45,7 +45,7 @@ Connect:
 	sqlArr := strings.Split(string(sqls)+"\n", ";")
 	log.Println("executing", this.SqlPath)
 	for _, sql := range sqlArr {
-		re := regexp.MustCompile(`^# .*\n|^-- .*\n`)
+		re := regexp.MustCompile(`# .*\n|-- .*\n`)
 		sql = re.ReplaceAllString(sql, "")
 		sql = strings.TrimSpace(sql)
 		if sql == "" {
