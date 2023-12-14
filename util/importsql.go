@@ -18,6 +18,8 @@ type ImportSqlTool struct {
 	Username, Password, Server, Port, Database string
 }
 
+// ImportSql
+// 导入数据库SQL文件
 func (this *ImportSqlTool) ImportSql() error {
 	// 检查数据库SQL文件是否存在
 	_, err := os.Stat(this.SqlPath)
@@ -88,6 +90,8 @@ Connect:
 	// 执行完所有SQL语句后，返回空值
 }
 
+// ImportSqlBatch
+// 批量执行SQL文件
 func (this *ImportSqlTool) ImportSqlBatch() error {
 	// 检查数据库SQL文件是否存在
 	_, err := os.Stat(this.SqlPath)
@@ -174,4 +178,11 @@ Connect:
 	// 执行完所有SQL语句后，返回空值
 	return nil
 
+}
+
+// ImportSqlBatchWithTransaction
+// 使用事务批量导入数据库SQL文件
+func (this *ImportSqlTool) ImportSqlBatchWithTransaction() error {
+	
+	return nil
 }
