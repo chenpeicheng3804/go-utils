@@ -106,7 +106,7 @@ func (this *ImportSqlTool) ImportSqlBatch() error {
 Connect:
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
-		time.Sleep(time.Second)
+		//time.Sleep(time.Second)
 		goto Connect
 	}
 
@@ -158,13 +158,18 @@ Connect:
 		//fmt.Println(concatenatedString)
 		err = db.Exec(concatenatedString).Error
 		if err != nil {
-			// 如果执行SQL出错，则打印错误日志
-			log.Println(this.Database, concatenatedString, "数据库导入失败:"+err.Error())
-			//log.Println("数据库导入失败:" + err.Error())
-		} else {
-			// 如果执行SQL成功，则打印成功日志
-			log.Println(this.Database, concatenatedString, "\t success!")
+			log.Println("数据库导入失败:" + err.Error())
 		}
+
+		//err = db.Exec(concatenatedString).Error
+		//if err != nil {
+		//	// 如果执行SQL出错，则打印错误日志
+		//	log.Println(this.Database, concatenatedString, "数据库导入失败:"+err.Error())
+		//	//log.Println("数据库导入失败:" + err.Error())
+		//} else {
+		//	// 如果执行SQL成功，则打印成功日志
+		//	log.Println(this.Database, concatenatedString, "\t success!")
+		//}
 	}
 	// 执行完所有SQL语句后，返回空值
 	return nil
