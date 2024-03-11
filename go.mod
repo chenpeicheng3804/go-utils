@@ -8,6 +8,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/jinzhu/gorm v1.9.16
+	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.1
 	github.com/sirupsen/logrus v1.8.1
 )
