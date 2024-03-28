@@ -16,6 +16,7 @@ import (
 type ImportSqlTool struct {
 	SqlPath                                    string
 	Username, Password, Server, Port, Database string
+	Db                                         *gorm.DB
 }
 
 // ImportSql
