@@ -110,3 +110,21 @@ func HttpClientPost(Uri string, reader *bytes.Reader) (body []byte, err error) {
 	defer resp.Body.Close()
 	return io.ReadAll(resp.Body)
 }
+
+func HttpClient(Method, Uri string, Body io.Reader) (resp *http.Response, err error) {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	//r, _ := http.NewRequest("GET", urlStr, strings.NewReader(data.Encode())) // URL-encoded payload
+	r, _ := http.NewRequest(Method, Uri, Body) // URL-encoded payload
+
+	resp, err = client.Do(r)
+	if err != nil {
+		//log.Println(err.Error())
+		return resp, err
+	}
+	defer resp.Body.Close()
+	return resp, nil
+}
