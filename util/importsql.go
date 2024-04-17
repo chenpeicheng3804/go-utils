@@ -181,6 +181,70 @@ Connect:
 
 }
 
+// 使用事务批量导入数据库，SQL文件不解析
+// ImportSqlFileWithTransaction
+func (this *ImportSqlTool) ImportSqlFileWithTransaction() error {
+	// Db.Begin() 开始事务
+	// Db.Commit() 提交事务
+	// Db.Rollback() 回滚事务
+
+	// 检查数据库SQL文件是否存在
+	_, err := os.Stat(this.SqlPath)
+	if os.IsNotExist(err) {
+		log.Println(this.SqlPath, "数据库SQL文件不存在:", err)
+		return err
+	}
+
+	// 根据提供的参数拼接数据库连接字符串
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
+	// 进行数据库连接，如果失败则进行重试
+Connect:
+	db, err := gorm.Open("mysql", dsn)
+	if err != nil {
+		time.Sleep(time.Second)
+		goto Connect
+	}
+
+	// 设置数据库连接参数
+	// 设置数据库操作对象的表名是否使用单数形式
+	db.SingularTable(true)
+	// 设置是否打印SQL语句
+	db.LogMode(false)
+	// 设置连接池中的最大空闲连接数
+	db.DB().SetMaxIdleConns(0)
+	// 设置数据库的最大打开连接数
+	db.DB().SetMaxOpenConns(0)
+
+	// 设置连接的最大可复用时间
+	db.DB().SetConnMaxLifetime(59 * time.Second)
+	// 读取SQL文件内容，并忽略错误
+	sqls, _ := os.ReadFile(this.SqlPath)
+
+	tx := db.Begin()
+
+	// 去除BOM字符
+	// 去除文件开头的BOM字符
+	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+
+	// 执行SQL语句，并获取可能的错误
+	err = tx.Exec(string(sqls)).Error
+
+	if err != nil {
+		// 如果执行SQL出错，则打印错误日志
+		log.Println(this.Database, strings.Replace(string(sqls), "\n", "", -1), "数据库导入失败:"+err.Error())
+
+		tx.Rollback()
+		return err
+		//} else {
+		//	// 如果执行SQL成功，则打印成功日志
+		//	log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "\t success!")
+	}
+	tx.Commit()
+
+	// 执行完所有SQL语句后，返回空值
+	return nil
+}
+
 // ImportSqlBatchWithTransaction
 // 使用事务批量导入数据库SQL文件
 func (this *ImportSqlTool) ImportSqlBatchWithTransaction() error {
