@@ -181,8 +181,8 @@ Connect:
 
 }
 
-// 使用事务批量导入数据库，SQL文件不解析
 // ImportSqlFileWithTransaction
+// 使用事务批量导入数据库，SQL文件不解析
 func (this *ImportSqlTool) ImportSqlFileWithTransaction() error {
 	// Db.Begin() 开始事务
 	// Db.Commit() 提交事务
