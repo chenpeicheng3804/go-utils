@@ -11,9 +11,14 @@ require (
 	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.1
 	github.com/sirupsen/logrus v1.8.1
+	github.com/stretchr/testify v1.8.3
 )
 
-require github.com/jinzhu/inflection v1.0.0 // indirect
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+)
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
