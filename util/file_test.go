@@ -24,5 +24,5 @@ func TestErgodicPathFile(t *testing.T) {
 	expectedFiles := []string{"/tmp/path/to/dir/file1.txt", "/tmp/path/to/dir/subdir/file2.txt"}
 	f, err := ErgodicPathFile("/tmp/path/to/dir", ".txt")
 	assert.NoError(t, err)
-	assert.Equal(t, expectedFiles, f.files)
+	assert.Equal(t, expectedFiles, f.Files)
 }
