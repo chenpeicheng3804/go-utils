@@ -232,11 +232,11 @@ Connect:
 
 	if err != nil {
 		// 如果执行SQL出错，则打印错误日志
-		log.Println(this.SqlPath, this.Database, string(sqls), "数据库导入失败:"+err.Error())
+		log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", string(sqls), "数据库导入失败:"+err.Error())
 		return err
 	} else {
 		// 如果执行SQL成功，则打印成功日志
-		log.Println(this.SqlPath, this.Database, string(sqls), "\t success!")
+		log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", string(sqls), "\t success!")
 	}
 	// }
 	tx.Commit()
@@ -311,10 +311,10 @@ Connect:
 
 		if err != nil {
 			// 如果执行SQL出错，则打印错误日志
-			log.Println(this.SqlPath, this.Database, sql, "数据库导入失败:"+err.Error())
+			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "数据库导入失败:"+err.Error())
 		} else {
 			// 如果执行SQL成功，则打印成功日志
-			log.Println(this.SqlPath, this.Database, sql, "\t success!")
+			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
 		}
 	}
 	// 执行完所有SQL语句后，返回空值
