@@ -18,7 +18,7 @@ var (
 
 // 假设的File类型定义，增加了Mutex保护和更明确的字段名称
 type FileProcessor struct {
-	files     []string   // 筛选后的文件列表
+	Files     []string   // 筛选后的文件列表
 	mu        sync.Mutex // 用于保护files列表的互斥锁
 	condition string     // 筛选文件的条件
 }
@@ -28,7 +28,7 @@ type FileProcessor struct {
 // 返回值: 初始化后的FileProcessor指针。
 func NewFileProcessor(condition string) *FileProcessor {
 	return &FileProcessor{
-		files:     []string{},
+		Files:     []string{},
 		condition: condition,
 	}
 }
@@ -80,7 +80,7 @@ func (f *FileProcessor) WalkFuncWithRegex(conditionRegex *regexp.Regexp) filepat
 			f.mu.Lock() // 加锁以保证并发安全
 			defer f.mu.Unlock()
 
-			f.files = append(f.files, path)
+			f.Files = append(f.Files, path)
 		}
 
 		return nil
