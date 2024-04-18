@@ -183,6 +183,7 @@ Connect:
 
 // ImportSqlFileWithTransaction
 // 使用事务批量导入数据库，SQL文件不解析
+// 该方法为一个SQL文件当做一条SQL进行执行。
 func (this *ImportSqlTool) ImportSqlFileWithTransaction() error {
 	// Db.Begin() 开始事务
 	// Db.Commit() 提交事务
@@ -221,7 +222,7 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-
+	defer tx.Rollback()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
@@ -231,14 +232,13 @@ Connect:
 
 	if err != nil {
 		// 如果执行SQL出错，则打印错误日志
-		log.Println(this.Database, strings.Replace(string(sqls), "\n", "", -1), "数据库导入失败:"+err.Error())
-
-		tx.Rollback()
+		log.Println(this.SqlPath, this.Database, string(sqls), "数据库导入失败:"+err.Error())
 		return err
-		//} else {
-		//	// 如果执行SQL成功，则打印成功日志
-		//	log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "\t success!")
+	} else {
+		// 如果执行SQL成功，则打印成功日志
+		log.Println(this.SqlPath, this.Database, string(sqls), "\t success!")
 	}
+	// }
 	tx.Commit()
 
 	// 执行完所有SQL语句后，返回空值
@@ -286,14 +286,14 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-
+	defer tx.Rollback()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
 	// 将SQL文件内容按分号分割成数组
 	sqlArr := strings.Split(string(sqls)+"\n", ";")
 	// 打印日志，表示开始执行SQL文件
-	log.Println("executing", this.SqlPath)
+	//log.Println("executing", this.SqlPath)
 
 	for _, sql := range sqlArr {
 		// 创建正则表达式，用于匹配SQL注释
@@ -311,17 +311,12 @@ Connect:
 
 		if err != nil {
 			// 如果执行SQL出错，则打印错误日志
-			log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "数据库导入失败:"+err.Error())
-
-			//} else {
-			//	// 如果执行SQL成功，则打印成功日志
-			//	log.Println(this.Database, strings.Replace(sql, "\n", "", -1), "\t success!")
-
+			log.Println(this.SqlPath, this.Database, sql, "数据库导入失败:"+err.Error())
+		} else {
+			// 如果执行SQL成功，则打印成功日志
+			log.Println(this.SqlPath, this.Database, sql, "\t success!")
 		}
 	}
-	tx.Commit()
-
 	// 执行完所有SQL语句后，返回空值
 	return nil
-
 }
