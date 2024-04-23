@@ -222,7 +222,7 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-	defer tx.Rollback()
+	defer tx.Commit()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
@@ -286,7 +286,7 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-	defer tx.Rollback()
+	defer tx.Commit()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
