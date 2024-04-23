@@ -222,7 +222,6 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-	defer tx.Commit()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
@@ -286,7 +285,7 @@ Connect:
 	sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
-	defer tx.Commit()
+	// defer tx.Commit()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
@@ -316,6 +315,7 @@ Connect:
 			// 如果执行SQL成功，则打印成功日志
 			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
 		}
+		tx.Commit()
 	}
 	// 执行完所有SQL语句后，返回空值
 	return nil
