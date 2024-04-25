@@ -266,6 +266,7 @@ Connect:
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		time.Sleep(time.Second)
+		//fmt.Println("mysql连接错误")
 		goto Connect
 	}
 
@@ -284,8 +285,8 @@ Connect:
 	// 读取SQL文件内容，并忽略错误
 	sqls, _ := os.ReadFile(this.SqlPath)
 
-	// tx := db.Begin()
-	// defer tx.Commit()
+	tx := db.Begin()
+	defer tx.Commit()
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
@@ -306,7 +307,7 @@ Connect:
 			continue
 		}
 		// 执行SQL语句，并获取可能的错误
-		err = db.Exec(sql).Error
+		err = tx.Exec(sql).Error
 
 		if err != nil {
 			// 如果执行SQL出错，则打印错误日志
@@ -315,7 +316,6 @@ Connect:
 			// 如果执行SQL成功，则打印成功日志
 			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
 		}
-		// tx.Commit()
 	}
 	// 执行完所有SQL语句后，返回空值
 	return nil
