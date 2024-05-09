@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -40,7 +41,14 @@ Connect:
 // 对象，其中包含了执行结果的信息，例如受影响的行数。 DB.Exec() 方法通常用于执行 INSERT、UPDATE、DELETE
 // 等修改操作，并用于判断操作是否成功。
 func (this *ImportSqlTool) DbExec(sql string) (err error) {
+	// 初始计数器
+	var count int32
 DBnil:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return errors.New("Database connection is nil")
+	}
 	if this.Db == nil {
 		this.CreateDb()
 		goto DBnil
@@ -58,7 +66,14 @@ DBnil:
 // DB.Raw() 方法返回的是 *sql.Rows 结果集对象，通过调用 .Scan() 方法可以将查询结果映射到相应的结构体中。
 // 由于直接执行原始 SQL，所以需要手动处理 SQL 注入、参数绑定和结果集映射等问题。
 func (this *ImportSqlTool) DbRaw(sql string) ([]byte, error) {
+	// 初始计数器
+	var count int32
 DBnil:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return nil, errors.New("Database connection is nil")
+	}
 	if this.Db == nil {
 		this.CreateDb()
 		goto DBnil
@@ -100,10 +115,5 @@ DBnil:
 		results = append(results, rowData)
 	}
 
-	jsonData, err := json.Marshal(results)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonData, nil
+	return json.Marshal(results)
 }

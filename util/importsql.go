@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -31,9 +32,15 @@ func (this *ImportSqlTool) ImportSql() error {
 
 	// 根据提供的参数拼接数据库连接字符串
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
-
+	// 初始计数器
+	var count int32
 	// 进行数据库连接，如果失败则进行重试
 Connect:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return errors.New("Database connection is nil")
+	}
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		time.Sleep(time.Second)
@@ -106,9 +113,15 @@ func (this *ImportSqlTool) ImportSqlBatch() error {
 	// 需要加入参数 multiStatements=true
 	// 因为 multi statements 可能会增加sql注入的风险
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true", this.Username, this.Password, this.Server, this.Port, this.Database)
-
+	// 初始计数器
+	var count int32
 	// 进行数据库连接，如果失败则进行重试
 Connect:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return errors.New("Database connection is nil")
+	}
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		//time.Sleep(time.Second)
@@ -198,8 +211,15 @@ func (this *ImportSqlTool) ImportSqlFileWithTransaction() error {
 
 	// 根据提供的参数拼接数据库连接字符串
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
+	// 初始计数器
+	var count int32
 	// 进行数据库连接，如果失败则进行重试
 Connect:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return errors.New("Database connection is nil")
+	}
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		time.Sleep(time.Second)
