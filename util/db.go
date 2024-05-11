@@ -13,8 +13,15 @@ import (
 // 创建连接
 func (this *ImportSqlTool) CreateDb() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
+	// 初始计数器
+	var count int32
 	// 进行数据库连接，如果失败则进行重试
 Connect:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return
+	}
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		time.Sleep(time.Second)
@@ -117,3 +124,9 @@ DBnil:
 
 	return json.Marshal(results)
 }
+
+// 单行数据查询
+// QueryAndParse
+
+// 多行数据查询
+// QueryAndParseRows
