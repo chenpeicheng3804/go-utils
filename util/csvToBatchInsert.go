@@ -39,12 +39,32 @@ type field struct {
 	FieldType string `db:"DATA_TYPE"`
 }
 
+// CsvDataInfo
+type CsvDataInfo struct {
+	Username  string
+	Password  string
+	Server    string
+	Port      string
+	Database  string
+	CsvFile   string
+	TableName string
+}
+
 // 创建CsvData对象
 func NewCsvData(username, password, server, port, database, csvfile, tablename string) *CsvData {
 	return &CsvData{
 		sqlxdb:    sqlx.MustConnect("mysql", username+":"+password+"@tcp("+server+":"+port+")/"+database+"?charset=utf8mb4&parseTime=True&loc=Local"),
 		csvfile:   csvfile,
 		tablename: tablename,
+	}
+}
+
+// 初始化CsvDataInfo信息
+func (c *CsvDataInfo) InitCsvDataInfo() *CsvData {
+	return &CsvData{
+		sqlxdb:    sqlx.MustConnect("mysql", c.Username+":"+c.Password+"@tcp("+c.Server+":"+c.Port+")/"+c.Database+"?charset=utf8mb4&parseTime=True&loc=Local"),
+		csvfile:   c.CsvFile,
+		tablename: c.TableName,
 	}
 }
 
@@ -60,17 +80,19 @@ func (c *CsvData) Run() {
 	}
 	defer func() {
 		if p := recover(); p != nil {
+			// 回滚
 			tx.Rollback()
 			log.Panicln(p) // re-throw panic after Rollback
 		} else if err != nil {
+
 			tx.Rollback() // err is non-nil; don't change it
 			log.Panicln("rollback")
 		} else {
-			err = tx.Commit() // err is nil; if Commit returns error update err
+			tx.Commit() // err is nil; if Commit returns error update err
 			log.Println("commit")
 		}
 	}()
-
+	var totalAffected int64
 	fields, err := c.describeTable()
 	//fmt.Println(fields)
 	if err != nil {
@@ -100,8 +122,9 @@ func (c *CsvData) Run() {
 	}
 	sqlValuesStr := strings.Join(sqlValues, ",")
 
-	sql := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", c.tablename, strings.Join(headers, ","), sqlValuesStr)
-
+	insertSql := fmt.Sprintf("INSERT INTO %s (`%s`) VALUES (%s)", c.tablename, strings.Join(headers, "`,`"), sqlValuesStr)
+	//fmt.Println(sql)
+	// var rs sql.Result
 	for _, record := range records[1:] { // 跳过表头
 
 		for i, value := range record {
@@ -110,16 +133,39 @@ func (c *CsvData) Run() {
 
 			values[i] = convertedValue
 		}
-		_, err := tx.Exec(sql, values...)
+		rs, err := tx.Exec(insertSql, values...)
 		if err != nil {
 			log.Panicln("Error inserting record: ", err)
 			//} else {
 			//	fmt.Println("Inserted record successfully")
 		}
+		// 获取插入行数
+		n, err := rs.RowsAffected()
+		if err != nil {
+			log.Panicln("Error getting rows affected: ", err)
+		}
+		totalAffected += n
 	}
 
+	log.Println("插入行数 ", totalAffected)
 	// 打印结束时间
 	log.Println("执行完毕，耗时:", time.Since(c.starttime))
+}
+
+// 根据属性类型返回对应sql空值类型
+func convertMySQLTypeToGo(mysqlType string) interface{} {
+	switch mysqlType {
+	case "int", "tinyint", "smallint", "mediumint", "bigint":
+		return sql.NullInt64{Valid: false}
+	case "decimal", "float", "double":
+		return sql.NullFloat64{Valid: false}
+	case "varchar", "char", "text", "mediumtext", "longtext":
+		return sql.NullString{Valid: false}
+	case "datetime", "timestamp", "date", "time":
+		return sql.NullTime{Valid: false}
+	default:
+		return sql.NullString{Valid: false}
+	}
 }
 
 // convertCSVValue 根据数据库字段类型将CSV值转换为适当的Go类型。
@@ -128,8 +174,7 @@ func convertCSVValue(fieldType string, csvValue string) interface{} {
 	// 判断长度是否为0
 	if len(csvValue) == 0 {
 		// 返回mysql null值
-
-		return sql.NullTime{Valid: false}
+		return convertMySQLTypeToGo(fieldType)
 	}
 	switch fieldType {
 	case "int", "tinyint", "smallint", "mediumint", "bigint":
@@ -147,7 +192,12 @@ func convertCSVValue(fieldType string, csvValue string) interface{} {
 		return csvValue
 	case "datetime", "timestamp", "date", "time":
 		//fmt.Println("datetime", csvValue)
-		return csvValue // 假设已格式化为Go的时间格式，实际应用中需要转换
+		// 检查日期时间字符串是否是无效的"1900-01-00"
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", csvValue)
+		if err != nil {
+			return sql.NullTime{}
+		}
+		return parsedTime // 假设已格式化为Go的时间格式，实际应用中需要转换
 	default:
 		return csvValue
 	}
