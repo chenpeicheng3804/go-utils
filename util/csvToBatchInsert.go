@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -236,8 +237,11 @@ func (c *CsvData) describeTable() ([]field, error) {
 // 将[]field切片结构体转换为map 以FieldName为键。
 func fieldsToMap(fields []field) map[string]field {
 	fieldMap := make(map[string]field)
+	var mutex sync.Mutex
 	for _, field := range fields {
+		mutex.Lock()
 		fieldMap[field.FieldName] = field
+		mutex.Unlock()
 	}
 	return fieldMap
 }
