@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -329,14 +330,87 @@ Connect:
 		// 执行SQL语句，并获取可能的错误
 		err = tx.Exec(sql).Error
 
-		if err != nil {
-			// 如果执行SQL出错，则打印错误日志
-			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "数据库导入失败:"+err.Error())
-		} else {
-			// 如果执行SQL成功，则打印成功日志
-			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
-		}
+		//if err != nil {
+		//	// 如果执行SQL出错，则打印错误日志
+		//	log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "数据库导入失败:"+err.Error())
+		//} else {
+		//	// 如果执行SQL成功，则打印成功日志
+		//	log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
+		//}
 	}
 	// 执行完所有SQL语句后，返回空值
+	return nil
+}
+
+// BatchImportSql
+// 读取SQL文件，分批并发导入数据库
+func (this *ImportSqlTool) BatchImportSql() error {
+	// 检查数据库SQL文件是否存在
+	_, err := os.Stat(this.SqlPath)
+	if os.IsNotExist(err) {
+		log.Println(this.SqlPath, "数据库SQL文件不存在:", err)
+		return err
+	}
+	// 根据提供的参数拼接数据库连接字符串
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", this.Username, this.Password, this.Server, this.Port, this.Database)
+	// 初始计数器
+	var count int32
+	// 进行数据库连接，如果失败则进行重试
+Connect:
+	count++
+	// 尝试三次
+	if count > 3 {
+		return errors.New("Database connection is nil")
+	}
+	db, err := gorm.Open("mysql", dsn)
+	if err != nil {
+		time.Sleep(time.Second)
+		goto Connect
+	}
+
+	// 设置数据库连接参数
+	// 设置数据库操作对象的表名是否使用单数形式
+	db.SingularTable(true)
+	// 设置是否打印SQL语句
+	db.LogMode(false)
+	// 设置连接池中的最大空闲连接数
+	db.DB().SetMaxIdleConns(0)
+	// 设置数据库的最大打开连接数
+	db.DB().SetMaxOpenConns(0)
+
+	// 设置连接的最大可复用时间
+	db.DB().SetConnMaxLifetime(59 * time.Second)
+	// 读取SQL文件内容，并忽略错误
+	sqls, _ := os.ReadFile(this.SqlPath)
+
+	// 去除BOM字符
+	// 去除文件开头的BOM字符
+	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	// 将SQL文件内容按分号分割成数组
+	sqlArr := strings.Split(string(sqls)+"\n", ";")
+	var wg sync.WaitGroup
+	// 将sqlArr切割5000条为一组，并发执行
+	//fmt.Println("sqlArr", len(sqlArr))
+	for i := 0; i < len(sqlArr); i += 5000 {
+		// 获取当前组的SQL语句
+		sqlBatch := sqlArr[i:min(i+5000, len(sqlArr))]
+		wg.Add(1)
+		// 创建一个协程，执行SQL语句
+		go func(sqlBatchs []string, wg *sync.WaitGroup, db *gorm.DB) {
+			//fmt.Println("sqlBatch", len(sqlBatch))
+			// 创建一个事务
+			tx := db.Begin()
+			defer tx.Commit()
+			defer wg.Done()
+			for _, sqlB := range sqlBatchs {
+				err = tx.Exec(sqlB).Error
+				if err != nil {
+					// 如果执行SQL出错，则打印错误日志
+					log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sqlB, "数据库导入失败:"+err.Error())
+				}
+			}
+		}(sqlBatch, &wg, db)
+	}
+	wg.Wait()
 	return nil
 }
