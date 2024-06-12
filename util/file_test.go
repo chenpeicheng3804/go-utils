@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,4 +26,17 @@ func TestErgodicPathFile(t *testing.T) {
 	f, err := ErgodicPathFile("/tmp/path/to/dir", ".txt")
 	assert.NoError(t, err)
 	assert.Equal(t, expectedFiles, f.Files)
+}
+
+func TestReadFile1(t *testing.T) {
+	Read, err := ReadFile("/home/demo/git/xdz/ttk/db/upgrade/gl/data_gl_upgrade.sql")
+	if err != nil {
+		t.Errorf("ReadFile() error = %v", err)
+	}
+	for _, v := range Read {
+		fmt.Println("1")
+		fmt.Println(v)
+		fmt.Println("2")
+	}
+
 }

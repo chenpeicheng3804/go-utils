@@ -67,7 +67,7 @@ Connect:
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
 	// 将SQL文件内容按分号分割成数组
-	sqlArr := strings.Split(string(sqls)+"\n", ";")
+	sqlArr := strings.Split(string(sqls)+"\n", ";\n")
 	// 打印日志，表示开始执行SQL文件
 	log.Println("executing", this.SqlPath)
 
@@ -148,7 +148,7 @@ Connect:
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
 	// 将SQL文件内容按分号分割成数组
-	sqlArr := strings.Split(string(sqls)+"\n", ";")
+	sqlArr := strings.Split(string(sqls)+"\n", ";\n")
 	fifth := len(sqlArr) / 5
 	// 每次拼接并打印五分之一的字符串切片
 	for i := 0; i < 5; i++ {
@@ -312,7 +312,7 @@ Connect:
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
 	// 将SQL文件内容按分号分割成数组
-	sqlArr := strings.Split(string(sqls)+"\n", ";")
+	sqlArr := strings.Split(string(sqls)+"\n", ";\n")
 	// 打印日志，表示开始执行SQL文件
 	//log.Println("executing", this.SqlPath)
 
@@ -387,7 +387,7 @@ Connect:
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
 	// 将SQL文件内容按分号分割成数组
-	sqlArr := strings.Split(string(sqls)+"\n", ";")
+	sqlArr := strings.Split(string(sqls)+"\n", ";\n")
 	var wg sync.WaitGroup
 	// 将sqlArr切割5000条为一组，并发执行
 	//fmt.Println("sqlArr", len(sqlArr))

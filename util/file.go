@@ -1,11 +1,13 @@
 package util
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 )
 
@@ -85,4 +87,65 @@ func (f *FileProcessor) WalkFuncWithRegex(conditionRegex *regexp.Regexp) filepat
 
 		return nil
 	}
+}
+
+// 逐行读取文件内容 返回字符串切片
+func ReadFile(filePath string) ([]string, error) {
+	// // 打开文件
+	// file, err := os.Open(filePath)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer file.Close()
+
+	// // 创建一个字符串切片用于存储文件内容
+	// var lines []string
+
+	// reader := bufio.NewReader(file)
+
+	// // 循环读取文件内容
+	// for {
+	// 	re := regexp.MustCompile(`# .*\n|-- .*\n`)
+	// 	lineTmp, _, err := reader.ReadLine()
+	// 	if err == io.EOF {
+	// 		break
+	// 	}
+	// 	lineTmp = bytes.TrimPrefix(lineTmp, []byte{0xef, 0xbb, 0xbf})
+	// 	line := re.ReplaceAllString(string(lineTmp), "")
+	// 	line = strings.TrimSpace(line)
+	// 	if line == "" {
+	// 		continue
+	// 	}
+	// 	lines = append(lines, line)
+	// }
+
+	// return lines, nil
+
+	var lines []string
+
+	// 检查文件是否存在
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		log.Println(filePath, "文件不存在:", err)
+		return lines, err
+	}
+	// 读取SQL文件内容，并忽略错误
+	readBytes, _ := os.ReadFile(filePath)
+	readBytesTmp := bytes.TrimPrefix(readBytes, []byte{0xef, 0xbb, 0xbf})
+	// 将SQL文件内容按分号分割成数组
+	readArr := strings.Split(string(readBytesTmp)+"\n", ";\n")
+	// 创建正则表达式，用于匹配SQL注释
+	re := regexp.MustCompile(`# .*\n|-- .*\n`)
+	for _, line := range readArr {
+		// 使用正则表达式替换SQL中的注释
+		line = re.ReplaceAllString(line, "")
+		// 去除SQL语句两端的空白字符
+		line = strings.TrimSpace(line)
+		// 如果SQL为空，则跳过本次循环
+		if line == "" {
+			continue
+		}
+		lines = append(lines, line)
+	}
+	return lines, nil
 }
