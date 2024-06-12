@@ -315,10 +315,10 @@ Connect:
 	sqlArr := strings.Split(string(sqls)+"\n", ";\n")
 	// 打印日志，表示开始执行SQL文件
 	//log.Println("executing", this.SqlPath)
-
+	// 创建正则表达式，用于匹配SQL注释
+	re := regexp.MustCompile(`# .*\n|-- .*\n`)
 	for _, sql := range sqlArr {
-		// 创建正则表达式，用于匹配SQL注释
-		re := regexp.MustCompile(`# .*\n|-- .*\n`)
+
 		// 使用正则表达式替换SQL中的注释
 		sql = re.ReplaceAllString(sql, "")
 		// 去除SQL语句两端的空白字符
@@ -327,16 +327,17 @@ Connect:
 		if sql == "" {
 			continue
 		}
+		//fmt.Println(sql)
 		// 执行SQL语句，并获取可能的错误
 		err = tx.Exec(sql).Error
 
-		//if err != nil {
-		//	// 如果执行SQL出错，则打印错误日志
-		//	log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "数据库导入失败:"+err.Error())
-		//} else {
-		//	// 如果执行SQL成功，则打印成功日志
-		//	log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
-		//}
+		if err != nil {
+			// 如果执行SQL出错，则打印错误日志
+			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "数据库导入失败:"+err.Error())
+		} else {
+			// 如果执行SQL成功，则打印成功日志
+			log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sql, "\n success!")
+		}
 	}
 	// 执行完所有SQL语句后，返回空值
 	return nil
