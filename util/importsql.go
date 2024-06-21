@@ -404,6 +404,10 @@ Connect:
 			defer tx.Commit()
 			defer wg.Done()
 			for _, sqlB := range sqlBatchs {
+				if sqlB == "\n" {
+					//log.Println("长度", len(sqlB))
+					continue
+				}
 				err = tx.Exec(sqlB).Error
 				if err != nil {
 					// 如果执行SQL出错，则打印错误日志
