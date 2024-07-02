@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"regexp"
@@ -13,6 +14,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"github.com/xwb1989/sqlparser"
 )
 
 type ImportSqlTool struct {
@@ -66,8 +68,9 @@ Connect:
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
 	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
-	// 将SQL文件内容按分号分割成数组
+	// 转换win换行符
 	convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
+	// 将SQL文件内容按分号分割成数组
 	sqlArr := strings.Split(convertedContent+"\n", ";\n")
 	// 打印日志，表示开始执行SQL文件
 	log.Println("executing", this.SqlPath)
@@ -143,15 +146,16 @@ Connect:
 	// 设置连接的最大可复用时间
 	db.DB().SetConnMaxLifetime(59 * time.Second)
 	// 读取SQL文件内容，并忽略错误
-	sqls, _ := os.ReadFile(this.SqlPath)
+	// sqls, _ := os.ReadFile(this.SqlPath)
 
 	// 去除BOM字符
 	// 去除文件开头的BOM字符
-	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	// sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	// 转换win换行符
+	// convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
 	// 将SQL文件内容按分号分割成数组
-	// 转换换行符
-	convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
-	sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	// sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	sqlArr := readFileSqlParser(this.SqlPath)
 	fifth := len(sqlArr) / 5
 	// 每次拼接并打印五分之一的字符串切片
 	for i := 0; i < 5; i++ {
@@ -307,30 +311,32 @@ Connect:
 	// 设置连接的最大可复用时间
 	db.DB().SetConnMaxLifetime(59 * time.Second)
 	// 读取SQL文件内容，并忽略错误
-	sqls, _ := os.ReadFile(this.SqlPath)
+	// sqls, _ := os.ReadFile(this.SqlPath)
 
 	tx := db.Begin()
 	defer tx.Commit()
-	// 去除BOM字符
-	// 去除文件开头的BOM字符
-	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
-	// 将SQL文件内容按分号分割成数组
-	convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
-	sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	// // 去除BOM字符
+	// // 去除文件开头的BOM字符
+	// sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	// // 转换win换行符
+	// convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
+	// // 将SQL文件内容按分号分割成数组
+	// sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	sqlArr := readFileSqlParser(this.SqlPath)
 	// 打印日志，表示开始执行SQL文件
 	//log.Println("executing", this.SqlPath)
 	// 创建正则表达式，用于匹配SQL注释
-	re := regexp.MustCompile(`# .*\n|-- .*\n`)
+	// re := regexp.MustCompile(`# .*\n|-- .*\n`)
 	for _, sql := range sqlArr {
 
 		// 使用正则表达式替换SQL中的注释
-		sql = re.ReplaceAllString(sql, "")
+		// sql = re.ReplaceAllString(sql, "")
 		// 去除SQL语句两端的空白字符
-		sql = strings.TrimSpace(sql)
+		// sql = strings.TrimSpace(sql)
 		// 如果SQL为空，则跳过本次循环
-		if sql == "" {
-			continue
-		}
+		// if sql == "" {
+		// 	continue
+		// }
 		//fmt.Println(sql)
 		// 执行SQL语句，并获取可能的错误
 		err = tx.Exec(sql).Error
@@ -369,7 +375,9 @@ Connect:
 	}
 	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
+		log.Println("连接失败")
 		time.Sleep(time.Second)
+
 		goto Connect
 	}
 
@@ -385,15 +393,17 @@ Connect:
 
 	// 设置连接的最大可复用时间
 	db.DB().SetConnMaxLifetime(59 * time.Second)
-	// 读取SQL文件内容，并忽略错误
-	sqls, _ := os.ReadFile(this.SqlPath)
+	// // 读取SQL文件内容，并忽略错误
+	// sqls, _ := os.ReadFile(this.SqlPath)
 
-	// 去除BOM字符
-	// 去除文件开头的BOM字符
-	sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
-	// 将SQL文件内容按分号分割成数组
-	convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
-	sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	// // 去除BOM字符
+	// // 去除文件开头的BOM字符
+	// sqls = bytes.TrimPrefix(sqls, []byte{0xef, 0xbb, 0xbf})
+	// // 转换win换行符
+	// convertedContent := strings.ReplaceAll(string(sqls), "\r\n", "\n")
+	// // 将SQL文件内容按分号分割成数组
+	// sqlArr := strings.Split(convertedContent+"\n", ";\n")
+	sqlArr := readFileSqlParser(this.SqlPath)
 	var wg sync.WaitGroup
 	// 将sqlArr切割5000条为一组，并发执行
 	//fmt.Println("sqlArr", len(sqlArr))
@@ -417,10 +427,34 @@ Connect:
 				if err != nil {
 					// 如果执行SQL出错，则打印错误日志
 					log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sqlB, "数据库导入失败:"+err.Error())
+					//} else {
+					//	// 如果执行SQL成功，则打印成功日志
+					//	log.Println("\nSQL文件：", this.SqlPath, "\n数据库：", this.Database, "\nSQL内容：\n", sqlB, "\n success!")
 				}
 			}
 		}(sqlBatch, &wg, db)
 	}
 	wg.Wait()
 	return nil
+}
+
+// 读取SQL文件内容 返回SQL语句
+func readFileSqlParser(file string) (sqls []string) {
+	// 读取整个文件内容
+	content, err := os.ReadFile(file)
+	if err != nil {
+		log.Println("Error reading file: ", err)
+		os.Exit(1)
+	}
+	r := strings.NewReader(string(content))
+	tokens := sqlparser.NewTokenizer(r)
+	for {
+		stmt, err := sqlparser.ParseNext(tokens)
+		if err == io.EOF {
+			break
+		}
+		// Do something with stmt or err.
+		sqls = append(sqls, sqlparser.String(stmt))
+	}
+	return sqls
 }
