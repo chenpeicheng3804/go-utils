@@ -1,4 +1,5 @@
 *.exe
 .idea
 */*.log
-*/*_test.go
+**/*_test.go
+examples
