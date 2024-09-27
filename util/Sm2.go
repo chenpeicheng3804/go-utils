@@ -168,3 +168,47 @@ func (s *Sm2Crypt) Decrypt(data string) (string, error) {
 
 	return string(plaintxt), nil
 }
+
+// CreateSm2Sig 用于生成SM2签名。
+// 参数msg是需要签名的消息。
+// 返回值是签名数据、公钥和可能的错误。
+func (s *Sm2Crypt) CreateSm2Sig(msg []byte) ([]byte, *sm2.PublicKey, error) {
+	// 从私钥字节中读取私钥对象
+	privateKey, _ := x509.ReadPrivateKeyFromPem(s.PrivateByte, nil)
+	// 初始化SM2椭圆曲线
+	c := sm2.P256Sm2() // 椭圆曲线
+	// 创建一个新的SM2私钥对象
+	priv := new(sm2.PrivateKey)
+	// 设置私钥的公钥部分所使用的椭圆曲线
+	priv.PublicKey.Curve = c
+	// 设置私钥的私钥部分（D）
+	priv.D = privateKey.D
+	// 设置公钥的X坐标
+	priv.X = privateKey.X
+	// 设置公钥的Y坐标
+	priv.Y = privateKey.Y
+	// 使用私钥对消息进行签名
+	sign, err := priv.Sign(rand.Reader, msg, nil) // sm2签名
+	if err != nil {
+		// 如果签名失败，返回错误
+		return nil, nil, err
+	}
+	// 返回签名数据和公钥
+	return sign, &priv.PublicKey, err
+}
+
+// VerSm2Sig 验证SM2公钥是否能正确验证消息的签名。
+// 它接受公钥、消息和签名作为参数，并返回一个布尔值，
+// 表示签名是否通过验证。
+// 参数:
+// pub - SM2公钥，用于验证签名。
+// msg - 要验证的消息数据。
+// sign - 消息的签名，用于公钥验证。
+// 返回值:
+// bool - 签名验证结果，true表示验证通过，false表示验证失败。
+func VerSm2Sig(pub *sm2.PublicKey, msg []byte, sign []byte) bool {
+	// 使用公钥验证消息签名
+	isok := pub.Verify(msg, sign)
+	// 返回验证结果
+	return isok
+}
