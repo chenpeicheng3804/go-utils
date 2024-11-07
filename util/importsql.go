@@ -407,6 +407,7 @@ Connect:
 	var wg sync.WaitGroup
 	// 将sqlArr切割5000条为一组，并发执行
 	//fmt.Println("sqlArr", len(sqlArr))
+	//fmt.Println("sqlArr", sqlArr)
 	for i := 0; i < len(sqlArr); i += 5000 {
 		// 获取当前组的SQL语句
 		sqlBatch := sqlArr[i:min(i+5000, len(sqlArr))]
@@ -450,11 +451,14 @@ func readFileSqlParser(file string) (sqls []string) {
 	tokens := sqlparser.NewTokenizer(r)
 	for {
 		stmt, err := sqlparser.ParseNext(tokens)
+		//fmt.Println(stmt)
 		if err == io.EOF {
 			break
 		}
-		// Do something with stmt or err.
-		sqls = append(sqls, sqlparser.String(stmt))
+		if stmt != nil {
+			// Do something with stmt or err.
+			sqls = append(sqls, sqlparser.String(stmt))
+		}
 	}
 	return sqls
 }
