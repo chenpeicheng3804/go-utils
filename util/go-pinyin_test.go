@@ -6,10 +6,10 @@ import (
 )
 
 func TestPinyin(t *testing.T) {
-	s := "中国人a"
+	s := "⼭"
 	fmt.Println(Pinyin(s))
-	//s = "中国人1"
-	s = "zouyue01"
+	////s = "中国人1"
+	s = "山"
 	fmt.Println(Pinyin(s))
 	//unicode.IsLetter(r)
 
