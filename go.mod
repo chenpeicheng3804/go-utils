@@ -1,10 +1,11 @@
 module github.com/chenpeicheng3804/go-utils
 
-go 1.23
+go 1.23.0
 
 toolchain go1.23.3
 
 require (
+	github.com/andybalholm/brotli v1.2.0
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-basic/uuid v1.0.0
@@ -12,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jmoiron/sqlx v1.4.0
+	github.com/miekg/dns v1.1.67
 	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.1
 	github.com/rs/zerolog v1.33.0
@@ -38,6 +40,8 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/tools v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240513163218-0867130af1f8 // indirect
 )
 
@@ -80,11 +84,11 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/net v0.33.0
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/net v0.40.0
+	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/grpc v1.64.1 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
